@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import prisma from '../db';
-import { Board } from '@prisma/client';
 import { slugify } from '../utils/helpers';
 import { BoardCreateSchemaType, BoardUpdateSchemaType } from '../schemas/boardSchemas';
 
@@ -71,6 +70,7 @@ export default class BoardController {
   static async update(req: Request, res: Response) {
     const userId = req.user?.id as string;
     const body = req.body;
+    console.log(body)
     const id = req.params.id;
     try {
       const toUpdate = await prisma.board.findUnique({
