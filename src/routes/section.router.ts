@@ -12,7 +12,9 @@ class SectionRouter {
     this.router.get('/:boardId', SectionController.getAll);
     this.router.post('/:boardId', SectionController.create);
     this.router.patch('/:sectionId', validateData(sectionUpdateSchema), SectionController.updateTitle);
-    this.router.put('/:boardId', SectionController.updatePositions);
+    this.router.put('/update-section-position/:boardId', SectionController.updatePositions);
+    this.router.put('/update-task-position/:boardId', SectionController.updateTasksPositions);
+    this.router.delete('/:sectionId', SectionController.delete)
   }
 }
 export default new SectionRouter().router;
