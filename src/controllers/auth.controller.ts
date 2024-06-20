@@ -7,7 +7,7 @@ import RefreshController from './refresh.controller';
 import { JwtPayload } from 'jsonwebtoken';
 
 export default class AuthController {
-  async signUp(req: Request, res: Response) {
+  static async signUp(req: Request, res: Response) {
     const { login, password, checkPassword } = req.body;
     try {
       if (password !== checkPassword)
@@ -32,7 +32,7 @@ export default class AuthController {
       res.status(501).json({ error: 'SignUp was failed', details: error });
     }
   }
-  async signIn(req: Request, res: Response) {
+  static async signIn(req: Request, res: Response) {
     const { login, password } = req.body;
     try {
       const isExist = await prisma.user.findUnique({
@@ -64,7 +64,7 @@ export default class AuthController {
       return res.status(501).json({ error: 'SignUp was failed', details: error });
     }
   }
-  async logout(req: Request, res: Response) {
+  static async logout(req: Request, res: Response) {
     const data = req.cookies;
     const refreshToken = data?.refreshToken;
     if (!refreshToken) {
@@ -78,7 +78,7 @@ export default class AuthController {
       return res.status(501).json({ error: 'Logout was failed', details: error });
     }
   }
-  async refresh(req: Request, res: Response) {
+  static async refresh(req: Request, res: Response) {
     const cookies = req.cookies;
     const currentRefreshToken = cookies.refreshToken;
     if (!currentRefreshToken)

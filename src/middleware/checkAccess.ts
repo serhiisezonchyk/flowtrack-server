@@ -13,10 +13,7 @@ export const checkAccess = (req: Request, res: Response, next: NextFunction) => 
   const authHeader = req.headers.authorization;
   const accessToken = authHeader?.split(' ').at(1);
 
-  if (!accessToken)
-    return res
-      .status(401)
-      .json({ error: 'Not authenticated', details: '' });
+  if (!accessToken) return res.status(401).json({ error: 'Not authenticated', details: '' });
   jwt.verify(
     accessToken,
     process.env.ACCESS_TOKEN as string,
