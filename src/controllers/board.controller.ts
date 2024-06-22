@@ -15,11 +15,13 @@ export default class BoardController {
   }
   static async getOne(req: Request, res: Response) {
     const userId = req.user?.id;
-    const id = req.params.id;
+    const { slug } = req.params;
     const data = await prisma.board.findUnique({
       where: {
-        id: id,
-        userId: userId,
+        userId_slug: {
+          userId: userId as string,
+          slug: slug as string,
+        },
       },
     });
     res.status(200).json({ data });
@@ -70,7 +72,7 @@ export default class BoardController {
   static async update(req: Request, res: Response) {
     const userId = req.user?.id as string;
     const body = req.body;
-    console.log(body)
+    console.log(body);
     const id = req.params.id;
     try {
       const toUpdate = await prisma.board.findUnique({

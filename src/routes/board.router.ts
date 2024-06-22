@@ -10,7 +10,7 @@ class BoardRouter {
   }
   intializeRoutes() {
     this.router.get('/', BoardController.getAll);
-    this.router.get('/:id', BoardController.getOne);
+    this.router.get('/:slug', BoardController.getOne);
     this.router.delete('/:id', BoardController.delete);
     this.router.post('/', validateData(boardCreateSchema), BoardController.create);
     this.router.put('/:id', validateData(boardUpdateSchema), BoardController.update);

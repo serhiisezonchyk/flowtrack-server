@@ -41,8 +41,8 @@ model Board {
   slug        String
   icon        String    @default("📃")
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  sections    Section[]
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections    Section[] 
 
   @@unique([userId, slug])
 }
@@ -52,7 +52,7 @@ model Section {
   title    String @default("Untitled")
   position Int
   boardId  String
-  board    Board  @relation(fields: [boardId], references: [id])
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   tasks    Task[]
 }
 
@@ -64,5 +64,5 @@ model Task {
   createdAt DateTime  @default(now())
   deadline  DateTime?
   sectionId String
-  section   Section   @relation(fields: [sectionId], references: [id])
+  section   Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 }
