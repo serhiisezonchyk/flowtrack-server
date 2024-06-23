@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../db';
+import BoardController from './board.controller';
 
 export default class SectionController {
   private static async getSectionData(boardId: string) {
@@ -25,6 +26,7 @@ export default class SectionController {
     });
     return data;
   }
+
   static async getAll(req: Request, res: Response) {
     const userId = req.user?.id;
     const { boardId } = req.params;
@@ -88,6 +90,12 @@ export default class SectionController {
     const { boardId } = req.params;
     const body: { id: string; position: number }[] = req.body;
     try {
+      //Check is board exist
+      const isBoardExist = await BoardController.isBoardExist(boardId as string, userId as string);
+      if (!isBoardExist)
+        return res.status(404).json({ error: `Board not found or you do not have access to this board` });
+
+      //Update positions to their order in request
       await prisma.$transaction(
         body.map((section) =>
           prisma.section.update({
@@ -97,8 +105,8 @@ export default class SectionController {
         ),
       );
 
+      //Format response with current order in db and send it to client
       const data = await SectionController.getSectionData(boardId as string);
-
       return res.status(200).json({ message: `Sections positions updated successfully`, data });
     } catch (error) {
       return res.status(501).json({ error: `An error occurred while updating sections positions`, details: error });
@@ -107,11 +115,23 @@ export default class SectionController {
   static async delete(req: Request, res: Response) {
     const { sectionId } = req.params;
     try {
-      await prisma.section.delete({
+      const deleted = await prisma.section.delete({
         where: {
           id: sectionId,
         },
       });
+
+      const sections = await SectionController.getSectionData(deleted.boardId);
+
+      await prisma.$transaction(
+        sections.map((section, index) =>
+          prisma.section.update({
+            where: { id: section.id },
+            data: { position: index },
+          }),
+        ),
+      );
+
       return res.status(200).json({ message: `Section ${sectionId} was deleted successfully.` });
     } catch (error) {
       return res
@@ -120,10 +140,16 @@ export default class SectionController {
     }
   }
   static async updateTasksPositions(req: Request, res: Response) {
+    const userId = req.user?.id;
     const updatedSections: { id: string; tasks: { id: string; position: number }[] }[] = req.body;
     const { boardId } = req.params;
 
     try {
+      //Check is board exist
+      const isBoardExist = await BoardController.isBoardExist(boardId as string, userId as string);
+      if (!isBoardExist)
+        return res.status(404).json({ error: `Board not found or you do not have access to this board` });
+
       // Prepare updates for tasks
       const taskUpdates = updatedSections.flatMap((section) =>
         section.tasks.map((task) =>
@@ -140,14 +166,14 @@ export default class SectionController {
       // Execute all updates within a transaction
       await prisma.$transaction(taskUpdates);
 
+      //Format response with current order in db and send it to client
       const data = await SectionController.getSectionData(boardId as string);
-
-      res.status(200).json({
+      return res.status(200).json({
         message: 'Tasks positions updated successfully',
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         error: 'An error occurred while updating tasks positions',
         details: error,
       });
