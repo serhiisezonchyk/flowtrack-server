@@ -97,15 +97,15 @@ export default class TaksController {
           error: `Cannot find task with id=${taskId}`,
           details: '',
         });
-
-      const data = await prisma.section.update({
+      const data = await prisma.task.update({
         where: {
           id: updatedTask.id,
         },
         data: {
-          ...updatedTask,
+          ...body,
         },
       });
+      console.log(data)
       return res.status(200).json({ message: `Task was updated successfully.`, data });
     } catch (error) {
       return res.status(501).json({ error: `An error occured while task updating`, details: error });
