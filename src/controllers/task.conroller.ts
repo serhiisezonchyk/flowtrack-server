@@ -105,7 +105,6 @@ export default class TaksController {
           ...body,
         },
       });
-      console.log(data)
       return res.status(200).json({ message: `Task was updated successfully.`, data });
     } catch (error) {
       return res.status(501).json({ error: `An error occured while task updating`, details: error });

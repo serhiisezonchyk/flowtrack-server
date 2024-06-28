@@ -35,7 +35,6 @@ export default class SectionController {
       const data = await SectionController.getSectionData(boardId as string);
       return res.status(200).json({ data });
     } catch (error) {
-      console.log(error);
       return res.status(501).json({ error: `An error occured while sections retreaving`, details: error });
     }
   }

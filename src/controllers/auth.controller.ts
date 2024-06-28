@@ -60,7 +60,6 @@ export default class AuthController {
         return res.status(501).json({ error: 'Logout failed', details: error });
       }
     } catch (error) {
-      console.log(error);
       return res.status(501).json({ error: 'SignUp was failed', details: error });
     }
   }
@@ -74,7 +73,6 @@ export default class AuthController {
       await RefreshController.deleteRefreshSession(refreshToken);
       return res.clearCookie('refreshToken').status(200).json({ message: 'Success' });
     } catch (error) {
-      console.log(error);
       return res.status(501).json({ error: 'Logout was failed', details: error });
     }
   }
@@ -122,7 +120,6 @@ export default class AuthController {
         res.status(403).json({ error: 'Cannot verify token', details: 'Token expired' });
       }
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: 'Refresh  failed', details: error });
     }
   }
