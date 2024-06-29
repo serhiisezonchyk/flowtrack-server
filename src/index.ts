@@ -1,11 +1,12 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
-import express, { Express } from 'express';
+import express, { Express, Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import { routeNotFound } from './middleware/routeNotFound';
 import router from './routes';
 import scheduler from 'node-schedule';
 import tokenCleanUp from './utils/tokenCleanup';
+import path from "path";
 
 dotenv.config();
 
@@ -23,12 +24,15 @@ app.use(routeNotFound);
 
 //BUILD
 // const __dirname = path.resolve();
-// if(process.env.NODE_ENV !=='development'){
-//   app.use(express.static(path.join(__dirname,'/frontend/dist')));
-//   app.get('*',(req:Request,res:Response)=>{
-//     res.sendFile(path.join(__dirname,"frontend","fist","index.html"))
-//   })
-// }
+const environment = process.env.NODE_ENV;
+console.log(environment)
+if(process.env.NODE_ENV !=='development'){
+  app.use(express.static(path.join(__dirname,'/front_build')));
+  app.get('*',(req:Request,res:Response)=>{
+    res.sendFile(path.join(__dirname,"front_build","index.html"))
+  })
+}
+
 scheduler.scheduleJob('0 0 * * *', tokenCleanUp);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
