@@ -7,7 +7,8 @@
     "dev": "NODE_ENV=development nodemon --watch src --ext ts,js,json --exec ts-node src/index.ts",
     "build": "tsc && npm run copy",
     "dev:start": "node dist/index.js",
-    "prod:start": "npm install && prisma generate && npx prisma db push && node index.js",
+    "prod:build": "npm install && prisma generate && npx prisma db push",
+    "prod:start": "node index.js",
     "copy": "cpx 'prisma/**/*' dist/prisma && cpx 'package.json' dist && cpx 'src/front_build/**/' dist/front_build",
     "copy-env": "cpx '.env' dist"
   },
