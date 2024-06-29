@@ -16,7 +16,8 @@ datasource db {
 model User {
   id           String    @id @default(uuid())
   login        String    @unique
-  password     String
+  password     String    
+  googleId     String    @default("")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   refreshToken Refresh[]
@@ -42,7 +43,7 @@ model Board {
   icon        String    @default("📃")
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sections    Section[] 
+  sections    Section[]
 
   @@unique([userId, slug])
 }

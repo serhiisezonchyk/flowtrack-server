@@ -15,8 +15,8 @@ app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-
 app.use('/api', router);
+
 
 //Log not found routes
 app.use(routeNotFound);
@@ -29,7 +29,7 @@ app.use(routeNotFound);
 //     res.sendFile(path.join(__dirname,"frontend","fist","index.html"))
 //   })
 // }
-scheduler.scheduleJob('0 0 * * *', tokenCleanUp)
+scheduler.scheduleJob('0 0 * * *', tokenCleanUp);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

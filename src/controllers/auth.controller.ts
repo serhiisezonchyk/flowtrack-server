@@ -5,6 +5,9 @@ import TokenService, { JwtType } from '../services/TokenService';
 import { ACCESS_TOKEN_EXPIRATION, COOKIE_SETTINGS } from '../utils/constants';
 import RefreshController from './refresh.controller';
 import { JwtPayload } from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client();
 
 export default class AuthController {
   static async signUp(req: Request, res: Response) {
@@ -50,7 +53,7 @@ export default class AuthController {
       const refreshToken = await TokenService.generateRefreshToken(payload);
 
       try {
-        await RefreshController.createRefreshSession({ id: isExist.id, refreshToken});
+        await RefreshController.createRefreshSession({ id: isExist.id, refreshToken });
         const { password: removedPass, ...data } = isExist;
         return res
           .cookie('refreshToken', refreshToken, COOKIE_SETTINGS.REFRESH_TOKEN)
@@ -121,6 +124,53 @@ export default class AuthController {
       }
     } catch (error) {
       res.status(500).json({ error: 'Refresh  failed', details: error });
+    }
+  }
+  static async googleSignIn(req: Request, res: Response) {
+    const { credential } = req.body;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+      });
+      const payload = ticket.getPayload();
+      const userid = payload?.sub;
+      const userEmail = payload?.email;
+
+      if (!userEmail || !userid) {
+        return res.status(401).json({ error: 'Cannot create user by this Google account', details: {} });
+      }
+
+      // Use upsert to create or update the user
+      const user = await prisma.user.upsert({
+        where: {
+          login: userEmail,
+        },
+        update: {
+          googleId: userid,
+        },
+        create: {
+          login: userEmail,
+          googleId: userid,
+          password: '',
+        },
+      });
+
+      const jwtPayload: JwtType = { id: user.id, login: user.login };
+      const accessToken = await TokenService.generateAccessToken(jwtPayload);
+      const refreshToken = await TokenService.generateRefreshToken(jwtPayload);
+
+      await RefreshController.createRefreshSession({
+        id: user.id,
+        refreshToken,
+      });
+
+      res
+        .cookie('refreshToken', refreshToken, COOKIE_SETTINGS.REFRESH_TOKEN)
+        .status(201)
+        .json({ accessToken, accessTokenExpiration: ACCESS_TOKEN_EXPIRATION, data: user });
+    } catch (error) {
+      res.status(401).json({ error: 'Invalid token', details: error });
     }
   }
 }

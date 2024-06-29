@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import prisma from '../db';
 import { slugify } from '../utils/helpers';
-import { BoardCreateSchemaType, BoardUpdateSchemaType } from '../schemas/boardSchemas';
+import { BoardCreateSchemaType } from '../schemas/boardSchemas';
 
 export default class BoardController {
-  static isBoardExist = async (boardId: string,userId:string) => {
+  static isBoardExist = async (boardId: string, userId: string) => {
     const data = await prisma.board.findUnique({
       where: {
         id: boardId,
-        userId
+        userId,
       },
     });
     if (!data) return false;
